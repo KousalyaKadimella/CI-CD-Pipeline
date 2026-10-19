@@ -1,122 +1,78 @@
-# CI/CD Pipeline with Jenkins & AWS
+# CI/CD with Maven and GitHub Actions (Course Project)
 
-A production-grade Continuous Integration and Continuous Deployment (CI/CD) pipeline built using Jenkins, GitHub Actions, Maven, and AWS, designed for automated Java application lifecycle management.
+A course project for **Advanced Software Engineering** (M.S. Computer Science, California State University, Dominguez Hills, spring 2024). It shows how a Java project is built, style-checked and tested automatically with **Maven** and **GitHub Actions**.
 
-
-## Project Overview
-
-This project implements a complete CI/CD pipeline that automates the software development lifecycle from code commit to deployment with integrated code quality checks, automated testing, and multi-environment AWS deployments.
-
-
-## Tech Stack
-
-| Tool | Purpose |
-| :--- | :--- |
-| **Jenkins** | CI/CD orchestration and pipeline automation |
-| **GitHub Actions** | Workflow triggers and automation |
-| **Maven** | Java build tool: compile, test, package |
-| **Java** | Application language (multi-version support) |
-| **AWS EC2** | Deployment environment (multi-environment) |
-| **AWS S3** | Artifact storage |
-| **SonarQube** | Static code analysis and quality gates |
-| **JUnit** | Automated unit testing framework |
-
-
-## Key Features
-
-* **Multi-Version Cross Compilation:** Achieved a 100% build pass rate across multiple Java versions using modular `pom.xml` profiles.
-* **High Test Rigor:** 90%+ JUnit test coverage ensures reliable regression detection on every code commit.
-* **Quality Gates:** Integrated SonarQube seamlessly to enforce structural gates before any cloud deployment occurs.
-* **Environment Isolation:** Multi-environment deployments utilize separate, isolated AWS EC2 instances for Dev, Staging, and Production.
-* **Stability:** 80% reduction in environment-specific bugs through consistent, immutable deployment configurations.
-* **Secure Artifact Storage:** Automated artifact management, versions, and backups of executable binaries directly inside Amazon S3.
-
-
-## Pipeline Stages
-
-```
-Code Commit → GitHub Actions Trigger → Jenkins Pipeline
-     │
-     ├── 1. Clean          (mvn clean)
-     ├── 2. Compile        (mvn compile)
-     ├── 3. Test           (mvn test + JUnit)
-     ├── 4. Code Analysis  (SonarQube scan)
-     ├── 5. Package        (mvn package → .jar)
-     ├── 6. Upload         (artifact → AWS S3)
-     └── 7. Deploy         (AWS EC2 — dev/staging/prod)
-```
-
-## Repository Structure
-
-```text
-CI-CD-Pipeline/
-├── .github/
-│   └── workflows/      # GitHub Actions workflow files
-├── java-project/       # Java application source code
-│   ├── src/
-│   │   ├── main/java/  # Application code
-│   │   └── test/java/  # JUnit test classes
-│   └── pom.xml         # Maven build config with multi-version profiles
-├── Jenkinsfile         # Jenkins pipeline definition
-└── README.md
-```
-
-##  Setup & Configuration
-
-### Prerequisites
-* Jenkins master node up and running.
-* AWS account equipped with programmatic EC2 and S3 access policies.
-* Java 11+ and Maven 3.6+ installed locally or on worker agents.
-* Dedicated SonarQube server operational.
-
-### Jenkins Pipeline Setup
-1. Install required Jenkins plugins: `Maven Integration`, `AWS Steps`, and `SonarQube Scanner`.
-2. Configure your secure AWS credentials in the global Jenkins credentials store.
-3. Add your remote SonarQube server URL and tokens under Jenkins system configuration.
-4. Create a new **Pipeline** job and point its definition to this repository's `Jenkinsfile`.
-
-### Multi-Version Maven Profiles
-Below is the structural snippet configuration matching your codebase setup inside `pom.xml`:
-
-```xml
-<profiles>
-    <profile>
-        <id>java11</id>
-        <properties>
-            <maven.compiler.source>11</maven.compiler.source>
-            <maven.compiler.target>11</maven.compiler.target>
-        </properties>
-    </profile>
-    <profile>
-        <id>java17</id>
-        <properties>
-            <maven.compiler.source>17</maven.compiler.source>
-            <maven.compiler.target>17</maven.compiler.target>
-        </properties>
-    </profile>
-</profiles>
-```
+> **Where the code is:** the Java project and workflow live in [KousalyaK03/Maven](https://github.com/KousalyaK03/Maven).
+> This repository holds the written assignment (`MavenAssignment.docx`) explaining the Maven build lifecycle.
 
 ---
 
-##  Performance Metrics & Results
+## What the project does
 
-| Metric | Result |
-| :--- | :--- |
-| **Build Pass Rate** | 100% across Java 11, 17 |
-| **Test Coverage** | 90%+ (JUnit) |
-| **Environment Bugs** | Reduced by 80% |
-| **Deployment Time** | Fully automated (Minutes vs manual hours) |
+Every push or pull request to `main` triggers a GitHub Actions workflow that:
 
-## Key Architectural Concepts
+1. Checks out the code on an Ubuntu runner
+2. Installs **JDK 11** (AdoptOpenJDK)
+3. Runs `mvn -B package` to compile the code and build a `.jar`
+4. Runs `mvn -B test` to run the JUnit tests
 
-* **Continuous Integration (CI):** Automatically build and test code on every commit to catch bugs early in development.
-* **Continuous Deployment (CD):** Automatically deploy fully tested code to target environments without manual validation blockers.
-* **SonarQube Quality Gate:** Ensures clean code standards and stops vulnerable deployments before they reach production.
-* **Maven Profiles:** Standardizes builds across separate Java environments out of a singular, clean code base.
-* **AWS S3 as Artifact Store:** Versions and preserves historical compilation binaries for instant production rollbacks if required.
+If any step fails, the run is marked as failed on GitHub, so problems show up on every change instead of later.
 
-## Author
+## Tech used
 
-**Kousalya Kadimella**
-MS Computer Science, California State University Dominguez Hills | [GitHub](https://github.com/KousalyaK03)
+| Tool | What it's used for |
+|---|---|
+| Java | A simple sample application (`App.java`) |
+| Maven (`pom.xml`) | Build, dependencies and the build lifecycle |
+| JUnit 3.8.1 | Unit test (`AppTest.java`) |
+| Maven Checkstyle plugin | Code-style checks, bound to the `verify` phase (run locally; the CI workflow runs `package` and `test`) |
+| GitHub Actions (`.github/workflows/main.yml`) | Runs the build and tests automatically on every push and PR |
+| Apache Commons Lang 3.12.0 | Example dependency managed by Maven |
+
+## Repository contents
+
+```text
+KousalyaK03/Maven                     (code)
+├── .github/workflows/main.yml        # GitHub Actions: build + test on push / PR to main
+├── pom.xml                           # Maven config, Checkstyle plugin, java11 profile
+├── checkstyle.xml                    # Checkstyle rules
+└── src/
+    ├── main/java/com/example/App.java
+    └── test/java/com/example/AppTest.java
+
+KousalyaKadimella/CI-CD-Pipeline      (this repo)
+└── MavenAssignment.docx              # Write-up: Maven default, clean and site lifecycles
+```
+
+## Maven lifecycle (summary of the write-up)
+
+- **Default lifecycle:** `validate → compile → test → package → verify → install → deploy`. Running a phase runs every phase before it, so `mvn package` also compiles and tests.
+- **Clean lifecycle:** `pre-clean → clean → post-clean` removes files from earlier builds.
+- **Site lifecycle:** generates project documentation.
+
+## Run it locally
+
+```bash
+git clone https://github.com/KousalyaK03/Maven.git
+cd Maven
+mvn package    # compile, test and build the jar
+mvn verify     # also runs Checkstyle (see note below)
+```
+
+Requires Java and Maven installed locally.
+
+> **Note:** in `pom.xml`, the Checkstyle `configLocation` points to a path on my own laptop. To run `mvn verify` on another machine, change it to `checkstyle.xml`.
+
+## Notes and limitations
+
+- The application is a small "Hello World" sample. The focus of the assignment is the **build and automation**, not the app.
+- The code compiles to Java 1.8. The workflow runs on JDK 11, and the `pom.xml` includes a `java11` profile.
+- There is no deployment step (no Jenkins, SonarQube or cloud deployment). Natural next steps would be a test-coverage report and deploying the built `.jar`.
+
+## What I learned
+
+How Maven's lifecycle phases chain together, how plugins like Checkstyle attach to a phase, and how a CI workflow gives fast, automatic feedback on every change.
+
+---
+
+**Kousalya Kadimella** · M.S. Computer Science, CSU Dominguez Hills
